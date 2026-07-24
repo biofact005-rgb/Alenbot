@@ -3,6 +3,10 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import os, threading, fitz
+import os
+import re
+import asyncio
+from pyrogram.errors import FloodWait
 
 # ==========================================
 # ⚙️ CONFIGURATION & SECRETS
@@ -348,6 +352,80 @@ def send_to_chat():
             return jsonify({"error": "Invalid Message ID"})
     except Exception as e:
         return jsonify({"error": str(e)})
+
+@app.on_message(filters.command("upload") & filters.private)
+async def process_txt_upload(client, message):
+    # Check karna ki user ne kisi document (.txt) par reply kiya hai ya nahi
+    if not message.reply_to_message or not message.reply_to_message.document:
+        await message.reply("⚠️ Bhai, please ek **.txt file** par reply karke `/upload` command do.")
+        return
+
+    # Check karna ki file .txt hi hai
+    file_name = message.reply_to_message.document.file_name
+    if not file_name.endswith(".txt"):
+        await message.reply("⚠️ Ye .txt file nahi lag rahi. Sahi format wali file bhejo.")
+        return
+
+    status_msg = await message.reply("⏳ Downloading .txt file...")
+    
+    # File download karna
+    file_path = await message.reply_to_message.download()
+    await status_msg.edit("✅ File read kar raha hoon. Uploading start...")
+
+    current_path = "Uncategorized"
+    success_count = 0
+
+    # Txt file ko open karke line-by-line padhna
+    with open(file_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        
+        # 1. Agar line mein 'Path:' likha hai, toh DB ke liye folder path update kar lo
+        if line.lower().startswith("path:"):
+            current_path = line.split(":", 1)[1].strip()
+            continue
+        
+        # 2. Agar line mein Telegram ka link hai, toh wahan se Message ID extract karna
+        # Ye regex https://t.me/c/chat_id/message_id format se message id nikal lega
+        link_match = re.search(r"https://t\.me/(?:c/)?\d+/(\d+)", line)
+        
+        if link_match:
+            msg_id = int(link_match.group(1))
+            
+            try:
+                # Bin channel se message utha kar Main Channel me copy karna
+                # (Forward ki jagah copy use kar rahe hain taaki 'Forwarded from' na dikhe)
+                copied_msg = await client.copy_message(
+                    chat_id=MAIN_CHANNEL_ID,
+                    from_chat_id=BIN_CHANNEL_ID,
+                    message_id=msg_id
+                )
+                
+                # ⬇️ YAHAN TUM APNA MONGODB WALA CODE DAAL DENA ⬇️
+                # Example: db.lectures.insert_one({"path": current_path, "file_msg_id": copied_msg.id})
+                
+                success_count += 1
+                
+                # FloodWait se bachne ke liye 1.8 se 2 second ka sleep
+                await asyncio.sleep(1.8) 
+
+            except FloodWait as e:
+                print(f"⚠️ Telegram rate limit! Waiting for {e.value} seconds...")
+                await asyncio.sleep(e.value)
+            except Exception as e:
+                print(f"❌ Error aayi msg_id {msg_id} par: {e}")
+                continue
+
+    # Kaam khatam hone ke baad downloaded txt file delete kar dena server se
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        
+    await status_msg.edit(f"🎉 **Upload Complete!**\nTotal **{success_count}** files successfully upload ho gayi hain aur DB update ho gaya hai.")
+
 
 if __name__ == "__main__":
     t = threading.Thread(target=lambda: app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000))))

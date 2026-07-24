@@ -7,6 +7,8 @@ import os
 import re
 import asyncio
 from pyrogram.errors import FloodWait
+from pyrogram import filters
+
 
 # ==========================================
 # ⚙️ CONFIGURATION & SECRETS

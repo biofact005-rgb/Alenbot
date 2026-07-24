@@ -355,24 +355,34 @@ def send_to_chat():
     except Exception as e:
         return jsonify({"error": str(e)})
 
-@client.on_message(filters.command("upload") & filters.private)
-async def process_txt_upload(client, message):
+@bot.message_handler(commands=['upload'])
+def process_txt_upload(message):
     # Check karna ki user ne kisi document (.txt) par reply kiya hai ya nahi
     if not message.reply_to_message or not message.reply_to_message.document:
-        await message.reply("⚠️ Bhai, please ek **.txt file** par reply karke `/upload` command do.")
+        bot.reply_to(message, "⚠️ Bhai, please ek **.txt file** par reply karke `/upload` command do.", parse_mode="Markdown")
         return
 
     # Check karna ki file .txt hi hai
     file_name = message.reply_to_message.document.file_name
     if not file_name.endswith(".txt"):
-        await message.reply("⚠️ Ye .txt file nahi lag rahi. Sahi format wali file bhejo.")
+        bot.reply_to(message, "⚠️ Ye .txt file nahi lag rahi. Sahi format wali file bhejo.")
         return
 
-    status_msg = await message.reply("⏳ Downloading .txt file...")
+    status_msg = bot.reply_to(message, "⏳ Downloading .txt file...")
     
-    # File download karna
-    file_path = await message.reply_to_message.download()
-    await status_msg.edit("✅ File read kar raha hoon. Uploading start...")
+    # File download karna telebot style
+    try:
+        file_info = bot.get_file(message.reply_to_message.document.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        
+        file_path = f"temp_{message.message_id}.txt"
+        with open(file_path, "wb") as f:
+            f.write(downloaded_file)
+    except Exception as e:
+        bot.edit_message_text(f"❌ File download fail: {e}", chat_id=message.chat.id, message_id=status_msg.message_id)
+        return
+        
+    bot.edit_message_text("✅ File read kar raha hoon. Uploading start...", chat_id=message.chat.id, message_id=status_msg.message_id)
 
     current_path = "Uncategorized"
     success_count = 0
@@ -386,47 +396,40 @@ async def process_txt_upload(client, message):
         if not line:
             continue
         
-        # 1. Agar line mein 'Path:' likha hai, toh DB ke liye folder path update kar lo
+        # 1. Agar line mein 'Path:' likha hai
         if line.lower().startswith("path:"):
             current_path = line.split(":", 1)[1].strip()
             continue
         
-        # 2. Agar line mein Telegram ka link hai, toh wahan se Message ID extract karna
-        # Ye regex https://t.me/c/chat_id/message_id format se message id nikal lega
+        # 2. Telegram link se Message ID extract karna
         link_match = re.search(r"https://t\.me/(?:c/)?\d+/(\d+)", line)
         
         if link_match:
             msg_id = int(link_match.group(1))
             
             try:
-                # Bin channel se message utha kar Main Channel me copy karna
-                # (Forward ki jagah copy use kar rahe hain taaki 'Forwarded from' na dikhe)
-                copied_msg = await client.copy_message(
-                    chat_id=MAIN_CHANNEL_ID,
-                    from_chat_id=BIN_CHANNEL_ID,
+                # Telebot use karke bina "Forwarded from" ke copy karna
+                copied_msg = bot.copy_message(
+                    chat_id=MAIN_CHANNEL,
+                    from_chat_id=BIN_CHANNEL,
                     message_id=msg_id
                 )
                 
-                # ⬇️ YAHAN TUM APNA MONGODB WALA CODE DAAL DENA ⬇️
-                # Example: db.lectures.insert_one({"path": current_path, "file_msg_id": copied_msg.id})
-                
                 success_count += 1
                 
-                # FloodWait se bachne ke liye 1.8 se 2 second ka sleep
-                await asyncio.sleep(1.8) 
+                # Rate limit se bachne ke liye thoda wait (Telebot me sync sleep chalega)
+                import time
+                time.sleep(1.8) 
 
-            except FloodWait as e:
-                print(f"⚠️ Telegram rate limit! Waiting for {e.value} seconds...")
-                await asyncio.sleep(e.value)
             except Exception as e:
                 print(f"❌ Error aayi msg_id {msg_id} par: {e}")
                 continue
 
-    # Kaam khatam hone ke baad downloaded txt file delete kar dena server se
+    # Kaam khatam hone ke baad downloaded txt file delete kar dena
     if os.path.exists(file_path):
         os.remove(file_path)
         
-    await status_msg.edit(f"🎉 **Upload Complete!**\nTotal **{success_count}** files successfully upload ho gayi hain aur DB update ho gaya hai.")
+    bot.edit_message_text(f"🎉 **Upload Complete!**\nTotal **{success_count}** files successfully upload ho gayi hain.", chat_id=message.chat.id, message_id=status_msg.message_id, parse_mode="Markdown")
 
 
 if __name__ == "__main__":

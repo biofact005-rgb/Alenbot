@@ -353,7 +353,7 @@ def send_to_chat():
     except Exception as e:
         return jsonify({"error": str(e)})
 
-@app.on_message(filters.command("upload") & filters.private)
+@client.on_message(filters.command("upload") & filters.private)
 async def process_txt_upload(client, message):
     # Check karna ki user ne kisi document (.txt) par reply kiya hai ya nahi
     if not message.reply_to_message or not message.reply_to_message.document:

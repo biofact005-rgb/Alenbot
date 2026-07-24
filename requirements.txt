@@ -1,4 +1,5 @@
-pyTelegramBotAPI==4.15.4
+pyrogram
+tgcrypto
 Flask==3.0.3
 Flask-Cors==4.0.0
 pymongo==4.6.2

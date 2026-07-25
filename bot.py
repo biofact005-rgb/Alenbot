@@ -108,7 +108,7 @@ def force_join_menu():
 
 def home_menu():
     markup = InlineKeyboardMarkup()
-    markup.row(ColoredButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL), style="success"))
+    markup.row(ColoredButton("▶️ ENTER ALIEN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL), style="success"))
     markup.row(
         ColoredButton("🆘 Help", url="https://t.me/errorkidk_bot", style="primary"),
         ColoredButton("🔄 Update", url="https://t.me/testbotupdate", style="primary")

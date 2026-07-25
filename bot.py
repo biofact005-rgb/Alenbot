@@ -142,17 +142,30 @@ def start(m):
     if MAINTENANCE_MODE and uid != str(ADMIN_ID):
         return bot.send_photo(m.chat.id, photo=IMAGES['locked'], caption="🚧 <b>BOT IS UNDER MAINTENANCE</b> 🚧\n\n<blockquote>System is updating. Please try again later.</blockquote>", parse_mode="HTML")
 
+    # 🔥 NAYA UPDATE: New User Registration & Admin Alert
     if uid not in db_data['users']:
-        # Ek naya tag "agreed_disclaimer" add kiya gaya hai
         db_data['users'][uid] = {"name": first_name, "agreed_disclaimer": False}
         save_db(db_data)
         
+        # Admin ko notification bhejna
+        username = f"@{m.from_user.username}" if m.from_user.username else "No Username"
+        admin_text = (
+            f"🔔 <b>NEW USER ALERT</b> 🔔\n\n"
+            f"👤 <b>Name:</b> {first_name}\n"
+            f"📧 <b>Username:</b> {username}\n"
+            f"🆔 <b>User ID:</b> <code>{uid}</code>\n"
+            f"📊 <b>Total Users:</b> {len(db_data['users'])}"
+        )
+        try:
+            bot.send_message(ADMIN_ID, admin_text, parse_mode="HTML")
+        except:
+            pass
+            
     if not check_joined(m.from_user.id):
         caption = "🔒 <b>ACCESS DENIED!</b>\n\n<blockquote>⚠️ <b>Verification Required</b>\nTo unlock High-Quality Ad-Free Lectures & PDFs, please join our official channels first.</blockquote>"
         bot.send_photo(m.chat.id, photo=IMAGES['locked'], caption=caption, parse_mode="HTML", reply_markup=force_join_menu())
         return
         
-    # Check Disclaimer
     if not db_data['users'][uid].get('agreed_disclaimer', False):
         send_disclaimer(m.chat.id)
         return
@@ -321,6 +334,43 @@ def scan_bin(m):
     save_db(db_data)
     bot.reply_to(m, f"✅ **Scan Complete!**\n🔥 Added **{added_count}** files to the App library.", parse_mode="Markdown")
 
+# ==========================================
+# 📢 BROADCAST COMMAND (ADMIN ONLY)
+# ==========================================
+@bot.message_handler(commands=['broadcast'])
+def broadcast_msg(m):
+    if str(m.from_user.id) != str(ADMIN_ID): return
+    
+    # Check karna ki reply kiya hai ya message type kiya hai
+    if not m.reply_to_message and len(m.text.split()) == 1:
+        bot.reply_to(m, "⚠️ **How to use:**\n\n1. Reply to any message/photo/video with `/broadcast`\n2. Or type `/broadcast Your Message`", parse_mode="Markdown")
+        return
+
+    users = list(db_data['users'].keys())
+    bot.reply_to(m, f"⏳ **Broadcast started to {len(users)} users...**\nIt will run in the background.", parse_mode="Markdown")
+    
+    def send_broadcast():
+        success = 0
+        failed = 0
+        for uid in users:
+            try:
+                if m.reply_to_message:
+                    # Agar reply kiya hai, toh photo/video/text sab copy ho jayega
+                    bot.copy_message(chat_id=uid, from_chat_id=m.chat.id, message_id=m.reply_to_message.message_id)
+                else:
+                    # Agar likh kar bheja hai
+                    text = m.text.split(maxsplit=1)[1]
+                    bot.send_message(uid, text)
+                success += 1
+            except Exception:
+                failed += 1
+                
+        # Jab pura ho jaye toh admin ko report de do
+        report = f"✅ **BROADCAST COMPLETE**\n\n🎯 Successfully Sent: `{success}`\n🚫 Blocked/Failed: `{failed}`"
+        bot.send_message(ADMIN_ID, report, parse_mode="Markdown")
+
+    # Background me chalane ke liye (taaki bot hang na ho)
+    threading.Thread(target=send_broadcast).start()
 # ==========================================
 # 🌐 API ROUTES (FLASK)
 # ==========================================

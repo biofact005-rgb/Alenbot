@@ -428,7 +428,7 @@ def send_end_message():
             f"━━━━━━━━━━━━━━━━━━━━\n"
             f"✨ <b>Cʜᴀᴘᴛᴇʀ Cᴏᴍᴘʟᴇᴛᴇᴅ</b> ✨\n\n"
             f"<blockquote>👤 <b>Exᴛʀᴀᴄᴛᴇᴅ & Uᴘʟᴏᴀᴅᴇᴅ ʙʏ:</b>\n"
-            f"👑 <a href='https://t.me/errorkidk'>E R R O R</a> 👑</blockquote>\n\n"
+            f"👑 <a href='https://t.me/errorkidk_bot'>E R R O R</a> 👑</blockquote>\n\n"
             f"<i>Sᴛᴜᴅʏ Hᴀʀᴅ 📚 Aɴᴅ Dᴏɴ'ᴛ Fᴏʀɢᴇᴛ Tᴏ Sʜᴀʀᴇ Tʜɪs Bᴏᴛ Wɪᴛʜ Yᴏᴜʀ Fʀɪᴇɴᴅs! 🚀 ❤️</i>\n"
             f"━━━━━━━━━━━━━━━━━━━━"
         )

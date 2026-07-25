@@ -74,33 +74,42 @@ def toggle_maintenance(m):
 # ==========================================
 # 🚀 VIP UI MENUS
 # ==========================================
+# ==========================================
+# 🚀 VIP UI MENUS (With Colored Emojis for Look)
+# ==========================================
 def force_join_menu():
     markup = InlineKeyboardMarkup()
-    try:
-        markup.row(InlineKeyboardButton("📢 Join Channel 1", url=f"https://t.me/{CHANNEL_1.replace('@', '')}", style="primary"))
-        markup.row(InlineKeyboardButton("📢 Join Channel 2", url=f"https://t.me/{CHANNEL_2.replace('@', '')}", style="primary"))
-        markup.row(InlineKeyboardButton("✅ VERIFY & CONTINUE", callback_data="verify_join", style="success"))
-    except TypeError:
-        markup.row(InlineKeyboardButton("📢 Join Channel 1", url=f"https://t.me/{CHANNEL_1.replace('@', '')}"))
-        markup.row(InlineKeyboardButton("📢 Join Channel 2", url=f"https://t.me/{CHANNEL_2.replace('@', '')}"))
-        markup.row(InlineKeyboardButton("✅ VERIFY & CONTINUE", callback_data="verify_join"))
+    # 🟦 Blue aur 🟩 Green Emojis se color effect diya gaya hai
+    markup.row(InlineKeyboardButton("🟦 Join Channel 1", url=f"https://t.me/{CHANNEL_1.replace('@', '')}"))
+    markup.row(InlineKeyboardButton("🟦 Join Channel 2", url=f"https://t.me/{CHANNEL_2.replace('@', '')}"))
+    markup.row(InlineKeyboardButton("🟩 VERIFY & CONTINUE", callback_data="verify_join"))
     return markup
 
 def home_menu():
     markup = InlineKeyboardMarkup()
-    try:
-        markup.row(InlineKeyboardButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL), style="success"))
-        markup.row(
-            InlineKeyboardButton("🆘 Help", url="https://t.me/errorkidk_bot", style="primary"),
-            InlineKeyboardButton("🔄 Update", url="https://t.me/testbotupdate", style="primary")
-        )
-    except TypeError:
-        markup.row(InlineKeyboardButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL)))
-        markup.row(
-            InlineKeyboardButton("🆘 Help", url="https://t.me/errorkidk_bot"),
-            InlineKeyboardButton("🔄 Update", url="https://t.me/testbotupdate")
-        )
+    markup.row(InlineKeyboardButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL)))
+    markup.row(
+        InlineKeyboardButton("🆘 Help", url="https://t.me/errorkidk_bot"),
+        InlineKeyboardButton("🔄 Update", url="https://t.me/testbotupdate")
+    )
     return markup
+
+def show_home(chat_id, uid, first_name):
+    caption = f"⭐ <b>WELCOME TO ALIESN BATCH</b> ⭐\n\n<blockquote>👤 <b>Student:</b> {first_name}\n🆔 <b>User ID:</b> <code>{uid}</code>\n🛡️ <b>Status:</b> Verified ✅</blockquote>\n\n<blockquote>🎓 Click the button below to start fetching HD lectures!</blockquote>"
+    bot.send_photo(chat_id, photo=IMAGES['home'], caption=caption, parse_mode="HTML", reply_markup=home_menu())
+
+def send_disclaimer(chat_id):
+    text = (
+        "⚠️ <b>COPYRIGHT & ANTI-SCAM DISCLAIMER</b> ⚠️\n\n"
+        "<blockquote>1️⃣ <b>Ownership:</b> These video lectures and study materials belong entirely to <b>ALLEN Career Institute</b> and their respective creators. We do NOT own, host, or claim any copyright over this content.\n\n"
+        "2️⃣ <b>Educational Purpose:</b> This bot is made strictly for <b>educational purposes</b> to help poor students who cannot afford expensive courses. \n\n"
+        "3️⃣ <b>Anti-Scam Alert:</b> 🚫 <b>DO NOT BUY THESE LECTURES FROM ANYONE!</b> This content is available completely for free. If someone took money from you for these lectures, you have been scammed. Report them immediately!\n\n"
+        "4️⃣ <b>No Liability:</b> The developer is not responsible for any misuse of this bot.</blockquote>\n\n"
+        "<i>By clicking 'I AGREE', you acknowledge and accept these terms.</i>"
+    )
+    markup = InlineKeyboardMarkup()
+    markup.row(InlineKeyboardButton("🟥 I AGREE & CONTINUE", callback_data="agree_disclaimer"))
+    bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
 
 @bot.message_handler(commands=['start'])
 def start(m):
@@ -112,7 +121,8 @@ def start(m):
         return bot.send_photo(m.chat.id, photo=IMAGES['locked'], caption="🚧 <b>BOT IS UNDER MAINTENANCE</b> 🚧\n\n<blockquote>System is updating. Please try again later.</blockquote>", parse_mode="HTML")
 
     if uid not in db_data['users']:
-        db_data['users'][uid] = {"name": first_name}
+        # Ek naya tag "agreed_disclaimer" add kiya gaya hai
+        db_data['users'][uid] = {"name": first_name, "agreed_disclaimer": False}
         save_db(db_data)
         
     if not check_joined(m.from_user.id):
@@ -120,8 +130,12 @@ def start(m):
         bot.send_photo(m.chat.id, photo=IMAGES['locked'], caption=caption, parse_mode="HTML", reply_markup=force_join_menu())
         return
         
-    caption = f"⭐ <b>WELCOME TO ALIESN BATCH</b> ⭐\n\n<blockquote>👤 <b>Student:</b> {first_name}\n🆔 <b>User ID:</b> <code>{uid}</code>\n🛡️ <b>Status:</b> Verified ✅</blockquote>\n\n<blockquote>🎓 Click the button below to start fetching HD lectures!</blockquote>"
-    bot.send_photo(m.chat.id, photo=IMAGES['home'], caption=caption, parse_mode="HTML", reply_markup=home_menu())
+    # Check Disclaimer
+    if not db_data['users'][uid].get('agreed_disclaimer', False):
+        send_disclaimer(m.chat.id)
+        return
+        
+    show_home(m.chat.id, uid, first_name)
 
 @bot.callback_query_handler(func=lambda call: call.data == "verify_join")
 def verify_callback(call):
@@ -130,10 +144,30 @@ def verify_callback(call):
     
     if check_joined(uid):
         bot.answer_callback_query(call.id, "✅ Verification Successful!", show_alert=False)
-        caption = f"⭐ <b>WELCOME TO ALIESN BATCH</b> ⭐\n\n<blockquote>👤 <b>Student:</b> {first_name}\n🆔 <b>User ID:</b> <code>{uid}</code>\n🛡️ <b>Status:</b> Verified ✅</blockquote>"
-        bot.edit_message_media(media=InputMediaPhoto(IMAGES['home'], caption=caption, parse_mode='HTML'), chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=home_menu())
+        bot.delete_message(call.message.chat.id, call.message.message_id) # Locked photo delete karna
+        
+        # Check Disclaimer
+        if not db_data['users'][uid].get('agreed_disclaimer', False):
+            send_disclaimer(call.message.chat.id)
+        else:
+            show_home(call.message.chat.id, uid, first_name)
     else:
         bot.answer_callback_query(call.id, "❌ Please join both channels to continue!", show_alert=True)
+
+# Naya Callback Handler jab user 'I AGREE' par click kare
+@bot.callback_query_handler(func=lambda call: call.data == "agree_disclaimer")
+def agree_callback(call):
+    uid = str(call.from_user.id)
+    first_name = call.from_user.first_name
+    
+    # DB me save karo ki isne terms agree kar liye hain
+    if uid in db_data['users']:
+        db_data['users'][uid]['agreed_disclaimer'] = True
+        save_db(db_data)
+        
+    bot.answer_callback_query(call.id, "✅ You agreed to the terms.", show_alert=False)
+    bot.delete_message(call.message.chat.id, call.message.message_id)
+    show_home(call.message.chat.id, uid, first_name)
 
 # ==========================================
 # 📥 BIN CHANNEL LISTENER (SILENT SAVER)

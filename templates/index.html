@@ -352,7 +352,9 @@
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
         
-        // ====== NAYA SWIPE DOWN WALA CODE YAHAN AAYEGA ======
+        // ====== 
+
+                    // ====== NAYA SWIPE DOWN + BACK BUTTON WALA CODE ======
         // (For loop ke bahar)
         if(!cancelSending) {
             showToast("🎉 All files sent!");
@@ -361,8 +363,15 @@
                     <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:var(--bg-home); color:var(--primary);">
                         <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
                         <h2 style="font-family:'Orbitron'; text-shadow:0 0 20px var(--primary-glow); text-align:center;">FILES DELIVERED</h2>
+                        
                         <p style="color:white; margin-top:15px; font-size:1.2rem; font-weight:bold; text-align:center;">Check your bot chat<br>⬇️</p>
-                        <div style="font-size: 3rem; margin-top:20px; animation: bounce 1.5s infinite;">👇</div>
+                        <div style="font-size: 3rem; margin-top:10px; animation: bounce 1.5s infinite;">👇</div>
+                        
+                        <!-- Naya Back Button -->
+                        <button onclick="window.location.reload()" style="margin-top: 40px; padding: 12px 25px; font-size: 1.2rem; background: var(--primary); color: #000; border: none; border-radius: 8px; font-weight: bold; box-shadow: 0 0 10px var(--primary-glow); cursor: pointer;">
+                            ⬅️ Send More Files
+                        </button>
+                        
                         <style>
                             @keyframes bounce {
                                 0%, 100% { transform: translateY(0); }
@@ -374,6 +383,7 @@
             }, 1200); 
         }
     } // startBulkSend function ka end bracket
+
 
             
     </script>

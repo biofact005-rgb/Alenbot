@@ -354,9 +354,21 @@
         
         // ====== 
 
-                    // ====== NAYA SWIPE DOWN + BACK BUTTON WALA CODE ======
-        // (For loop ke bahar)
+                    // Pura For Loop yahan khatam hota hai...
+        
+        // ====== NAYA SWIPE DOWN + BACK BUTTON WALA CODE ======
         if(!cancelSending) {
+            // ✅ NAYA: End Message Bhejne ke liye API call
+            try {
+                await fetch('/api/send_end_message', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ uid: user.id })
+                });
+            } catch(e) {
+                console.log("End message failed", e);
+            }
+
             showToast("🎉 All files sent!");
             setTimeout(() => { 
                 document.body.innerHTML = `
@@ -367,7 +379,7 @@
                         <p style="color:white; margin-top:15px; font-size:1.2rem; font-weight:bold; text-align:center;">Check your bot chat<br>⬇️</p>
                         <div style="font-size: 3rem; margin-top:10px; animation: bounce 1.5s infinite;">👇</div>
                         
-                        <!-- Naya Back Button -->
+                        <!-- Back Button -->
                         <button onclick="window.location.reload()" style="margin-top: 40px; padding: 12px 25px; font-size: 1.2rem; background: var(--primary); color: #000; border: none; border-radius: 8px; font-weight: bold; box-shadow: 0 0 10px var(--primary-glow); cursor: pointer;">
                             ⬅️ Send More Files
                         </button>
@@ -383,6 +395,7 @@
             }, 1200); 
         }
     } // startBulkSend function ka end bracket
+
 
 
             

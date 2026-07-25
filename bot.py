@@ -312,6 +312,34 @@ def send_to_chat():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+@app.route('/api/send_end_message', methods=['POST'])
+def send_end_message():
+    try:
+        data = request.json
+        uid = data.get('uid')
+        
+        End_message = (
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"✨ <b>Cʜᴀᴘᴛᴇʀ Cᴏᴍᴘʟᴇᴛᴇᴅ</b> ✨\n\n"
+            f"<blockquote>👤 <b>Exᴛʀᴀᴄᴛᴇᴅ & Uᴘʟᴏᴀᴅᴇᴅ ʙʏ:</b>\n"
+            f"👑 <a href='https://t.me/errorkidk'>E R R O R</a> 👑</blockquote>\n\n"
+            f"<i>Sᴛᴜᴅʏ Hᴀʀᴅ 📚 Aɴᴅ Dᴏɴ'ᴛ Fᴏʀɢᴇᴛ Tᴏ Sʜᴀʀᴇ Tʜɪs Bᴏᴛ Wɪᴛʜ Yᴏᴜʀ Fʀɪᴇɴᴅs! 🚀 ❤️</i>\n"
+            f"━━━━━━━━━━━━━━━━━━━━"
+        )
+        
+        # Bot message bhejega (HTML parse mode zaroori hai tags ke liye)
+        bot.send_message(
+            chat_id=uid, 
+            text=End_message, 
+            parse_mode="HTML", 
+            disable_web_page_preview=True
+        )
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        print(f"End message error: {e}")
+        return jsonify({'status': 'error', 'message': str(e)})
+
+
 if __name__ == "__main__":
     t = threading.Thread(target=lambda: app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000))))
     t.start()

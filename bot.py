@@ -302,7 +302,6 @@ def send_to_chat():
     item_type = data.get('type') 
     
     try:
-            try:
         if msg_id:
             # Custom caption wala logic hata diya gaya hai, ab sirf protect_content rahega
             bot.copy_message(chat_id=uid, from_chat_id=MAIN_CHANNEL, message_id=msg_id, protect_content=True)

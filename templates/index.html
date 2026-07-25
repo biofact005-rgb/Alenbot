@@ -25,7 +25,7 @@
         .door-closed .door-left, .door-closed .door-right { transform: translateX(0); }
         .door-closed { pointer-events: all; }
         
-        .screen { display: none; flex-direction: column; position: absolute; top: 0px; left: 0; width: 100%; height: 100%; padding: 15px; overflow-y: auto; overflow-x: hidden; z-index: 5;}
+        .screen { display: none; flex-direction: column; position: absolute; top: 70px !important; left: 0; width: 100%; height: calc(100% - 70px) !important; padding: 15px; padding-top: 0px; padding-bottom: 120px; overflow-y: auto; overflow-x: hidden; z-index: 5;}
         
         /* Home Components */
         .water-card { width: 100%; height: 160px; position: relative; overflow: hidden; background: #0a0a12; border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 24px; display: flex; align-items: center; padding: 20px; margin-bottom: 25px; box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8), 0 5px 20px rgba(0,0,0,0.5); }
@@ -37,12 +37,17 @@
         .class-btn:active { transform: scale(0.97); }
         .class-text { font-family: 'Orbitron'; font-size: 2rem; font-weight: 900; color: var(--primary); letter-spacing: 2px; text-shadow: 0 0 10px var(--primary-glow); }
 
-        /* Folders */
+        /* Folders & Profile */
         .glass-box { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 18px; margin-bottom: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.3);}
         .glass-box:active { transform: scale(0.98); }
         
         .back-btn-modern { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); color: #ccc; border-radius: 20px; padding: 14px; text-align: center; font-weight: 600; margin-top: 15px; transition: 0.3s; display: flex; justify-content: center; align-items: center; cursor: pointer;}
         .back-btn-modern:active { transform: scale(0.98); background: rgba(255,255,255,0.1);}
+
+        /* Bottom Dock */
+        .dock-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 250px; height: 70px; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 40px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); z-index: 100; }
+        .dock-item { font-size: 1.6rem; color: #444; transition: 0.3s; width: 55px; height: 55px; display: flex; justify-content: center; align-items: center; border-radius: 50%; cursor: pointer;}
+        .active-dock { color: var(--primary); transform: translateY(-10px); text-shadow: 0 0 20px var(--primary-glow); background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.1); }
 
         /* Sending Cards UI */
         .send-card { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--glass-bg); border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--glass-border); transition: 0.3s; }
@@ -56,7 +61,7 @@
         .modal-content { background: #111; padding: 25px; border-radius: 20px; border: 1px solid var(--primary); width: 100%; max-width: 350px; text-align: center; box-shadow: 0 0 30px var(--primary-glow); }
         
         #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: rgba(99, 102, 241, 0.95); color: white; padding: 12px 24px; border-radius: 30px; font-weight: bold; font-size: 0.9rem; transition: 0.4s; z-index: 99999; box-shadow: 0 5px 20px rgba(0,0,0,0.5); white-space: nowrap;}
-        .show-toast { bottom: 30px !important; }
+        .show-toast { bottom: 100px !important; }
     </style>
 </head>
 <body>
@@ -79,7 +84,7 @@
     </div>
 
     <!-- HOME SCREEN -->
-    <div id="home-screen" class="screen" style="display:flex; top:20px;">
+    <div id="home-screen" class="screen" style="display:flex;">
         <h2 style="text-align:center; font-family:'Orbitron'; color:var(--primary); letter-spacing:2px; text-shadow:0 0 20px var(--primary-glow);">LEARNING HUB</h2>
         <div class="water-card">
             <div id="water-fill"></div>
@@ -87,6 +92,7 @@
             <div style="flex:1; z-index:10; padding-left:15px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="background:var(--primary); color:black; padding:3px 10px; border-radius:6px; font-size:0.7rem; font-weight:800; font-family:'Orbitron';">PREMIUM</span>
+                    <span style="color:#fff; font-size: 0.8rem; font-weight:bold; font-family:'Orbitron';">ACTIVE</span>
                 </div>
                 <div id="u-name" style="font-size:1.4rem; font-weight:700; margin:4px 0; color:white;">Loading...</div>
             </div>
@@ -100,14 +106,23 @@
     </div>
 
     <!-- FOLDER SCREEN -->
-    <div id="folder-screen" class="screen" style="top:20px;">
+    <div id="folder-screen" class="screen">
         <h3 id="folder-title" style="text-align:center; font-family:'Orbitron'; color:var(--primary); text-shadow: 0 0 15px var(--primary-glow); margin-bottom: 20px;">LIBRARY</h3>
         <div id="folder-list" style="margin-bottom: 10px;"></div>
         <div class="back-btn-modern" onclick="doorTransition(null, 'back')">⬅️ GO BACK</div>
     </div>
 
-    <!-- SENDING SCREEN (NEW) -->
-    <div id="sending-screen" class="screen" style="top:20px; padding-bottom: 50px;">
+    <!-- PROFILE SCREEN -->
+    <div id="profile-screen" class="screen">
+        <h2 style="text-align:center; font-family:'Orbitron'; color:var(--primary); margin-bottom:20px;">PROFILE</h2>
+        <div class="glass-box" onclick="tg.openTelegramLink('https://t.me/errorkid_05')">
+            <span style="font-size:1.5rem; margin-right:15px; text-shadow:0 0 10px var(--primary-glow);">📢</span> 
+            <b>Join Official Channel</b>
+        </div>
+    </div>
+
+    <!-- SENDING SCREEN -->
+    <div id="sending-screen" class="screen" style="padding-bottom: 50px;">
         <h3 id="sending-title" style="text-align:center; font-family:'Orbitron'; color:var(--primary); text-shadow: 0 0 15px var(--primary-glow); margin-bottom: 20px;">🚀 SENDING TO CHAT</h3>
         
         <button id="stop-btn" onclick="stopSending()" style="width:100%; background:linear-gradient(90deg, #ef4444, #991b1b); color:white; padding:15px; border-radius:14px; margin-bottom:20px; font-weight:bold; cursor:pointer; border:1px solid #f87171; text-align:center; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);">
@@ -117,6 +132,12 @@
         <div id="sending-list"></div>
     </div>
 
+    <!-- BOTTOM DOCK -->
+    <div class="dock-container" id="main-dock">
+        <div class="dock-item active-dock" onclick="switchTab('home', this)">🏠</div>
+        <div class="dock-item" onclick="switchTab('profile', this)">👤</div>
+    </div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand(); 
@@ -124,6 +145,7 @@
         
         const user = tg.initDataUnsafe.user || {id: 8718760365, first_name: "Admin"};
         if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.first_name;
+        if(user.photo_url && document.getElementById('u-pic')) document.getElementById('u-pic').src = user.photo_url;
         
         let fullData = {}; let path = []; 
         let cancelSending = false;
@@ -135,6 +157,13 @@
             setTimeout(() => { t.classList.remove('show-toast'); }, 3000);
         }
 
+        function switchTab(t, btn) {
+            document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+            document.getElementById(t==='profile' ? 'profile-screen' : 'home-screen').style.display='flex';
+            document.querySelectorAll('.dock-item').forEach(d=>d.classList.remove('active-dock'));
+            if(btn) btn.classList.add('active-dock');
+        }
+
         function doorTransition(p, action) {
             let door = document.getElementById('door-overlay'); door.classList.add('door-closed');
             setTimeout(() => {
@@ -143,11 +172,11 @@
             }, 600);
         }
 
-        function nav(p) { path=p; document.querySelectorAll('.screen').forEach(s=>s.style.display='none'); document.getElementById('folder-screen').style.display='flex'; renderFolder(); }
+        function nav(p) { path=p; document.querySelectorAll('.screen').forEach(s=>s.style.display='none'); document.getElementById('folder-screen').style.display='flex'; document.getElementById('main-dock').style.display='none'; renderFolder(); }
         
         function back() { 
             if(path.length > 1) { path.pop(); renderFolder(); } 
-            else { document.querySelectorAll('.screen').forEach(s=>s.style.display='none'); document.getElementById('home-screen').style.display='flex'; } 
+            else { document.querySelectorAll('.screen').forEach(s=>s.style.display='none'); document.getElementById('home-screen').style.display='flex'; document.getElementById('main-dock').style.display='flex'; } 
         }
         
         function renderFolder() {
@@ -155,25 +184,36 @@
             let list = document.getElementById('folder-list'); list.innerHTML = ''; 
             if(!ref) return; document.getElementById('folder-title').innerText = path[path.length-1] || 'LIBRARY';
 
-            // Iterate over keys inside the current path
             let items = Object.keys(ref).filter(k => k !== 'data');
+            let savedStars = JSON.parse(localStorage.getItem('aliesn_pinned') || '[]');
+            
+            let pinnedFolders = [];
+            let normalFolders = [];
             
             items.forEach(k => {
+                let fullPathKey = [...path, k].join('/');
+                if(savedStars.includes(fullPathKey)) pinnedFolders.push(k);
+                else normalFolders.push(k);
+            });
+
+            let sortedFolders = [...pinnedFolders, ...normalFolders];
+
+            sortedFolders.forEach(k => {
+                let fullPathKey = [...path, k].join('/');
+                let isPinned = savedStars.includes(fullPathKey);
+                let isChapter = ref[k].data && Array.isArray(ref[k].data);
+                
                 let d = document.createElement('div'); 
                 d.className = 'glass-box';
                 
                 // Left side
                 let leftSide = document.createElement('div');
-                leftSide.style.display = 'flex'; leftSide.style.alignItems = 'center'; leftSide.style.width = '80%';
+                leftSide.style.display = 'flex'; leftSide.style.alignItems = 'center'; leftSide.style.width = '70%';
                 
-                // Agar aage wali directory me 'data' list hai, toh matlab wo Chapter hai
-                let isChapter = ref[k].data && Array.isArray(ref[k].data);
                 let icon = isChapter ? '📚' : '📁';
-                
                 leftSide.innerHTML = `<span style="font-size:1.6rem; margin-right:15px;">${icon}</span> <span style="font-weight:600; font-size:1.05rem; word-break: break-word;">${k}</span>`;
                 
-                // CLick Logic (Folder kholo ya Bulk Send Modal dikhao)
-                d.onclick = () => {
+                leftSide.onclick = () => {
                     if (isChapter) {
                         triggerChapterSend(k, ref[k].data);
                     } else {
@@ -181,8 +221,29 @@
                     }
                 };
 
-                // Admin Delete Button
                 let rightSide = document.createElement('div');
+                rightSide.style.display = 'flex'; rightSide.style.alignItems = 'center'; rightSide.style.gap = '15px';
+
+                // Star Pin Feature Retained!
+                let starBtn = document.createElement('span');
+                starBtn.innerHTML = isPinned ? '⭐' : '☆'; 
+                starBtn.style.fontSize = '1.5rem';
+                starBtn.style.color = isPinned ? '#FFD700' : '#888';
+                
+                starBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    let currentStars = JSON.parse(localStorage.getItem('aliesn_pinned') || '[]');
+                    if(currentStars.includes(fullPathKey)) {
+                        currentStars = currentStars.filter(s => s !== fullPathKey);
+                    } else {
+                        currentStars.push(fullPathKey);
+                    }
+                    localStorage.setItem('aliesn_pinned', JSON.stringify(currentStars));
+                    try { tg.HapticFeedback.impactOccurred('light'); } catch(err){}
+                    renderFolder(); 
+                };
+                rightSide.appendChild(starBtn);
+
                 if(String(user.id) === "8718760365") {
                     let delBtn = document.createElement('span'); 
                     delBtn.innerText = '🗑️'; delBtn.style.fontSize = '1.3rem';
@@ -232,9 +293,8 @@
             let list = document.getElementById('sending-list');
             list.innerHTML = '';
             
-            // UI List Create
             files.forEach((file, index) => {
-                let icon = (file.type === 'video') ? '🎥' : '📄';
+                let icon = (file.type === 'video') ? '🎥' : (file.type === 'photo' ? '🖼️' : '📄');
                 list.innerHTML += `
                     <div id="item-${index}" class="send-card">
                         <span style="font-size: 1.4rem;">${icon}</span>
@@ -244,10 +304,10 @@
                 `;
             });
             
-            // Line by line sending loop
             for(let i = 0; i < files.length; i++) {
                 if(cancelSending) {
                     showToast("🛑 Sending Stopped!");
+                    setTimeout(() => { document.getElementById('sending-screen').style.display='none'; document.getElementById('folder-screen').style.display='flex'; }, 1000);
                     break;
                 }
                 
@@ -277,13 +337,12 @@
                     statusEl.innerText = '❌';
                 }
                 
-                // ⏱️ Exact 1 Second ka gap 
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
             
             if(!cancelSending) {
                 showToast("🎉 All files sent! Check your chat.");
-                setTimeout(() => { tg.close(); }, 1200); // 1.2 sec baad auto close
+                setTimeout(() => { tg.close(); }, 1200); 
             }
         }
     </script>

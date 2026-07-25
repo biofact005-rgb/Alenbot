@@ -371,27 +371,38 @@
             showToast("🎉 All files sent!");
             setTimeout(() => { 
                 document.body.innerHTML = `
-                    <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:var(--bg-home); color:var(--primary);">
-                        <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
-                        <h2 style="font-family:'Orbitron'; text-shadow:0 0 20px var(--primary-glow); text-align:center;">FILES DELIVERED</h2>
+                    <div style="height:100vh; width: 100%; display:flex; flex-direction:column; justify-content:center; align-items:center; background: var(--bg-home); padding: 30px; box-sizing: border-box; text-align: center; position: fixed; top: 0; left: 0; z-index: 999999;">
                         
-                        <p style="color:white; margin-top:15px; font-size:1.2rem; font-weight:bold; text-align:center;">Check your bot chat<br>⬇️</p>
-                        <div style="font-size: 3rem; margin-top:10px; animation: bounce 1.5s infinite;">👇</div>
-                        
-                        <!-- Back Button -->
-                        <button onclick="window.location.reload()" style="margin-top: 40px; padding: 12px 25px; font-size: 1.2rem; background: var(--primary); color: #000; border: none; border-radius: 8px; font-weight: bold; box-shadow: 0 0 10px var(--primary-glow); cursor: pointer;">
-                            ⬅️ Send More Files
-                        </button>
-                        
-                        <style>
-                            @keyframes bounce {
-                                0%, 100% { transform: translateY(0); }
-                                50% { transform: translateY(15px); }
-                            }
-                        </style>
+                        <!-- Glowing Professional Checkmark -->
+                        <div style="width: 90px; height: 90px; background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 30px rgba(34, 197, 94, 0.3); margin-bottom: 25px;">
+                            <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+
+                        <!-- Professional Text -->
+                        <h2 style="font-family: 'Orbitron', sans-serif; color: #f0fdf4; font-size: 1.6rem; margin-bottom: 10px; letter-spacing: 1px;">TRANSFER COMPLETE</h2>
+                        <p style="color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 40px; max-width: 280px; font-family: 'Poppins', sans-serif;">
+                            Your selected files have been successfully delivered. Please check the bot chat to access them.
+                        </p>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 300px;">
+                            
+                            <!-- Primary Action: Close App directly to chat -->
+                            <button onclick="window.Telegram.WebApp.close()" style="background: var(--primary); color: #000; border: none; padding: 16px; border-radius: 14px; font-size: 1.05rem; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; box-shadow: 0 0 15px var(--primary-glow); width: 100%; transition: transform 0.2s;">
+                                👁️ View in Chat
+                            </button>
+                            
+                            <!-- Secondary Action: Send More -->
+                            <button onclick="window.location.reload()" style="background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid rgba(255, 255, 255, 0.1); padding: 16px; border-radius: 14px; font-size: 1rem; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer; width: 100%; transition: background 0.2s;">
+                                🔄 Send More Files
+                            </button>
+
+                        </div>
                     </div>
                 `;
-            }, 1200); 
+            }, 1200);
         }
     } // startBulkSend function ka end bracket
 

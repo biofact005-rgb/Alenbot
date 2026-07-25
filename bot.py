@@ -302,10 +302,12 @@ def send_to_chat():
     item_type = data.get('type') 
     
     try:
+            try:
         if msg_id:
-            caption = f"📚 **{title}**\n\n*Downloaded via Aliesn Batch*"
-            bot.copy_message(chat_id=uid, from_chat_id=MAIN_CHANNEL, message_id=msg_id, protect_content=True, caption=caption, parse_mode="Markdown")
+            # Custom caption wala logic hata diya gaya hai, ab sirf protect_content rahega
+            bot.copy_message(chat_id=uid, from_chat_id=MAIN_CHANNEL, message_id=msg_id, protect_content=True)
             return jsonify({"status": "success"})
+
         else:
             return jsonify({"error": "No ID"})
     except Exception as e:

@@ -76,22 +76,40 @@ def toggle_maintenance(m):
 # ==========================================
 # ==========================================
 # 🚀 VIP UI MENUS (With Colored Emojis for Look)
+# =
+
+# ==========================================
+# 🚀 VIP UI MENUS (WITH REAL COLORS 🔥)
 # ==========================================
 def force_join_menu():
     markup = InlineKeyboardMarkup()
-    # 🟦 Blue aur 🟩 Green Emojis se color effect diya gaya hai
-    markup.row(InlineKeyboardButton("🟦 Join Channel 1", url=f"https://t.me/{CHANNEL_1.replace('@', '')}"))
-    markup.row(InlineKeyboardButton("🟦 Join Channel 2", url=f"https://t.me/{CHANNEL_2.replace('@', '')}"))
-    markup.row(InlineKeyboardButton("🟩 VERIFY & CONTINUE", callback_data="verify_join"))
+    try:
+        # style="primary" se Blue color aayega
+        markup.row(InlineKeyboardButton("📢 Join Channel 1", url=f"https://t.me/{CHANNEL_1.replace('@', '')}", style="primary"))
+        markup.row(InlineKeyboardButton("📢 Join Channel 2", url=f"https://t.me/{CHANNEL_2.replace('@', '')}", style="primary"))
+        # style="success" se Green color aayega
+        markup.row(InlineKeyboardButton("✅ VERIFY & CONTINUE", callback_data="verify_join", style="success"))
+    except TypeError:
+        # Agar telebot purana hua toh normal button aayega
+        markup.row(InlineKeyboardButton("📢 Join Channel 1", url=f"https://t.me/{CHANNEL_1.replace('@', '')}"))
+        markup.row(InlineKeyboardButton("📢 Join Channel 2", url=f"https://t.me/{CHANNEL_2.replace('@', '')}"))
+        markup.row(InlineKeyboardButton("✅ VERIFY & CONTINUE", callback_data="verify_join"))
     return markup
 
 def home_menu():
     markup = InlineKeyboardMarkup()
-    markup.row(InlineKeyboardButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL)))
-    markup.row(
-        InlineKeyboardButton("🆘 Help", url="https://t.me/errorkidk_bot"),
-        InlineKeyboardButton("🔄 Update", url="https://t.me/testbotupdate")
-    )
+    try:
+        markup.row(InlineKeyboardButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL), style="success"))
+        markup.row(
+            InlineKeyboardButton("🆘 Help", url="https://t.me/errorkidk_bot", style="primary"),
+            InlineKeyboardButton("🔄 Update", url="https://t.me/testbotupdate", style="primary")
+        )
+    except TypeError:
+        markup.row(InlineKeyboardButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL)))
+        markup.row(
+            InlineKeyboardButton("🆘 Help", url="https://t.me/errorkidk_bot"),
+            InlineKeyboardButton("🔄 Update", url="https://t.me/testbotupdate")
+        )
     return markup
 
 def show_home(chat_id, uid, first_name):
@@ -101,14 +119,19 @@ def show_home(chat_id, uid, first_name):
 def send_disclaimer(chat_id):
     text = (
         "⚠️ <b>COPYRIGHT & ANTI-SCAM DISCLAIMER</b> ⚠️\n\n"
-        "<blockquote>1️⃣ <b>Ownership:</b> These video lectures and study materials belong entirely to <b>ALLEN Career Institute</b> and their respective creators. We do NOT own, host, or claim any copyright over this content.\n\n"
+        "<blockquote>1️⃣ <b>Ownership:</b> These video lectures and study materials belong entirely to their <b>Respected Original Institutes</b> and creators. We do NOT own, host, or claim any copyright over this content.\n\n"
         "2️⃣ <b>Educational Purpose:</b> This bot is made strictly for <b>educational purposes</b> to help poor students who cannot afford expensive courses. \n\n"
         "3️⃣ <b>Anti-Scam Alert:</b> 🚫 <b>DO NOT BUY THESE LECTURES FROM ANYONE!</b> This content is available completely for free. If someone took money from you for these lectures, you have been scammed. Report them immediately!\n\n"
         "4️⃣ <b>No Liability:</b> The developer is not responsible for any misuse of this bot.</blockquote>\n\n"
         "<i>By clicking 'I AGREE', you acknowledge and accept these terms.</i>"
     )
     markup = InlineKeyboardMarkup()
-    markup.row(InlineKeyboardButton("🟥 I AGREE & CONTINUE", callback_data="agree_disclaimer"))
+    try:
+        # style="danger" se ekdum mast RED color ka button aayega!
+        markup.row(InlineKeyboardButton("I AGREE & CONTINUE", callback_data="agree_disclaimer", style="danger"))
+    except TypeError:
+        markup.row(InlineKeyboardButton("🟥 I AGREE & CONTINUE", callback_data="agree_disclaimer"))
+        
     bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
 
 @bot.message_handler(commands=['start'])

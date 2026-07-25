@@ -302,41 +302,80 @@
             
             let list = document.getElementById('sending-list');
             list.innerHTML = '';
+                    files.forEach((file, index) => {
+            let icon = (file.type === 'video') ? '🎥' : (file.type === 'photo' ? '🖼️' : '📄');
+            list.innerHTML += `
+                <div id="item-${index}" class="send-card">
+                    <span style="font-size: 1.4rem;">${icon}</span>
+                    <span class="s-title">${file.title}</span>
+                    <span id="status-${index}" class="s-status">🕒</span>
+                </div>
+            `;
+        });
+        
+        // Asli Sending Loop yahan se shuru hota hai
+        for(let i = 0; i < files.length; i++) {
+            if(cancelSending) {
+                showToast("🛑 Sending Stopped!");
+                setTimeout(() => { document.getElementById('sending-screen').style.display='none'; document.getElementById('folder-screen').style.display='flex'; }, 1000);
+                break;
+            }
             
-            files.forEach((file, index) => {
-                let icon = (file.type === 'video') ? '🎥' : (file.type === 'photo' ? '🖼️' : '📄');
-                list.innerHTML += `
-                    <div id="item-${index}" class="send-card">
-                        <span style="font-size: 1.4rem;">${icon}</span>
-                        <span class="s-title">${file.title}</span>
-                        <span id="status-${index}" class="s-status">🕒</span>
+            let statusEl = document.getElementById(`status-${i}`);
+            let cardEl = document.getElementById(`item-${i}`);
+            
+            statusEl.innerText = '⏳';
+            cardEl.classList.add('sending');
+            
+            try {
+                // YE WALI LINE TUMNE DELETE KAR DI THI (Ye backend ko bot send karne bolti hai)
+                let res = await fetch('/api/send_to_chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ uid: user.id, msg_id: files[i].msg_id, title: files[i].title, type: files[i].type })
+                });
+                let data = await res.json();
+                
+                if(data.status === 'success') {
+                    statusEl.innerText = '✅';
+                    cardEl.classList.remove('sending');
+                    cardEl.classList.add('sent');
+                    try { tg.HapticFeedback.impactOccurred('light'); } catch(e){}
+                } else {
+                    statusEl.innerText = '❌';
+                }
+            } catch(e) {
+                statusEl.innerText = '❌';
+            }
+            
+            // Har file bhejne ke baad 1 second ka rukna (Anti-spam)
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        // ====== NAYA SWIPE DOWN WALA CODE YAHAN AAYEGA ======
+        // (For loop ke bahar)
+        if(!cancelSending) {
+            showToast("🎉 All files sent!");
+            setTimeout(() => { 
+                document.body.innerHTML = `
+                    <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:var(--bg-home); color:var(--primary);">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
+                        <h2 style="font-family:'Orbitron'; text-shadow:0 0 20px var(--primary-glow); text-align:center;">FILES DELIVERED</h2>
+                        <p style="color:white; margin-top:15px; font-size:1.2rem; font-weight:bold; text-align:center;">Check your bot chat<br>⬇️</p>
+                        <div style="font-size: 3rem; margin-top:20px; animation: bounce 1.5s infinite;">👇</div>
+                        <style>
+                            @keyframes bounce {
+                                0%, 100% { transform: translateY(0); }
+                                50% { transform: translateY(15px); }
+                            }
+                        </style>
                     </div>
                 `;
-            });
-            
-            for(let i = 0; i < files.length; i++) {
-                            if(!cancelSending) {
-                showToast("🎉 All files sent!");
-                setTimeout(() => { 
-                    // Pura UI hata kar naya message dikhayenge
-                    document.body.innerHTML = `
-                        <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:var(--bg-home); color:var(--primary);">
-                            <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
-                            <h2 style="font-family:'Orbitron'; text-shadow:0 0 20px var(--primary-glow); text-align:center;">FILES DELIVERED</h2>
-                            <p style="color:white; margin-top:15px; font-size:1.2rem; font-weight:bold; text-align:center;">Check your bot chat<br>⬇️</p>
-                            <div style="font-size: 3rem; margin-top:20px; animation: bounce 1.5s infinite;">👇</div>
-                            <style>
-                                @keyframes bounce {
-                                    0%, 100% { transform: translateY(0); }
-                                    50% { transform: translateY(15px); }
-                                }
-                            </style>
-                        </div>
-                    `;
-                }, 1200); 
-            }
-
+            }, 1200); 
         }
+    } // startBulkSend function ka end bracket
+
+            
     </script>
 </body>
 </html>

@@ -149,6 +149,68 @@ def handle_bin_post(m):
         post_data['file_name'] = m.document.file_name
     pending_coll.insert_one(post_data)
 
+
+
+
+# ==========================================
+# ⚡ FAST TEXT-BASED BULK UPLOAD
+# ==========================================
+@bot.message_handler(func=lambda m: m.text and m.text.lower().startswith('path:'))
+def handle_text_upload(m):
+    # Sirf ADMIN is command ko use kar sakta hai
+    if str(m.from_user.id) != str(ADMIN_ID): return #[span_0](start_span)[span_0](end_span)
+
+    lines = m.text.strip().split('\n')
+    
+    # Line 1 se path nikalna (e.g., NEET / Physics / Chapter 1)
+    path_str = lines[0].split(':', 1)[1].strip()
+    current_path = [x.strip() for x in path_str.split('/') if x.strip()]
+    
+    added_count = 0
+    new_files = []
+    
+    # Line 2 se saare links ko read karna
+    for index, line in enumerate(lines[1:]):
+        link = line.strip()
+        if not link.startswith('http'): 
+            continue # Agar line link nahi hai, toh skip karo
+            
+        try:
+            # Link ke aakhri hisse se msg_id nikalna
+            msg_id = int(link.split('/')[-1])
+            
+            # Default title assign karna kyunki link me title nahi hota
+            title = f"Lecture Part {index + 1}"
+            
+            new_files.append({
+                "title": title,
+                "msg_id": msg_id,
+                "type": "video" # Default type video set kar rahe hain[span_1](start_span)[span_1](end_span)
+            })
+            added_count += 1
+        except ValueError:
+            pass # Agar link me ID number nahi mili, toh skip karo
+
+    # Agar valid files mili, toh database me save karo
+    if new_files:
+        doc_found = False
+        for v in db_data.get('videos', []): #[span_2](start_span)[span_2](end_span)
+            if v.get('path') == current_path: #[span_3](start_span)[span_3](end_span)
+                v.setdefault('data', []).extend(new_files) #[span_4](start_span)[span_4](end_span)
+                doc_found = True
+                break
+                
+        if not doc_found:
+            db_data.setdefault('videos', []).append({ #[span_5](start_span)[span_5](end_span)
+                "path": current_path, 
+                "data": new_files
+            })
+            
+        save_db(db_data) #[span_6](start_span)[span_6](end_span)
+        bot.reply_to(m, f"✅ **Upload Successful!**\n🔥 Added **{added_count}** links to `{path_str}`.", parse_mode="Markdown")
+    else:
+        bot.reply_to(m, "❌ Koi valid link nahi mila. Format check karo.")
+
 # ==========================================
 # 🔄 /SCAN COMMAND (THE BRAHMASTRA)
 # ==========================================

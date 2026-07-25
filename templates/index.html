@@ -62,6 +62,73 @@
         
         #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: rgba(99, 102, 241, 0.95); color: white; padding: 12px 24px; border-radius: 30px; font-weight: bold; font-size: 0.9rem; transition: 0.4s; z-index: 99999; box-shadow: 0 5px 20px rgba(0,0,0,0.5); white-space: nowrap;}
         .show-toast { bottom: 100px !important; }
+
+        /* Naya Electric Shock Button */
+.electric-shock-btn {
+    background-color: #232e3c; /* Normal dark color */
+    color: #ffffff;
+    padding: 15px 35px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    
+    /* Ye line shock animation ko activate karegi */
+    animation: shock-effect 2.5s infinite;
+}
+
+/* ⚡ Asli Shock Animation ⚡ */
+@keyframes shock-effect {
+    0%, 100% { 
+        transform: translate(0); 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+        background-color: #232e3c;
+    }
+    
+    /* Pehla bada jhatka */
+    2% { 
+        transform: translate(-3px, 2px); 
+        box-shadow: 0 0 25px #0ff, inset 0 0 15px #0ff; 
+        background-color: #3390ec; /* Bright blue flash */
+        color: #ffffff;
+    }
+    4% { 
+        transform: translate(3px, -2px); 
+        background-color: #ffffff; /* White flash */
+        color: #000000;
+    }
+    6% { 
+        transform: translate(-3px, -2px); 
+        box-shadow: 0 0 40px #0ff, inset 0 0 20px #0ff; 
+        background-color: #3390ec;
+        color: #ffffff;
+    }
+    8% { 
+        transform: translate(3px, 2px); 
+        background-color: #232e3c; 
+    }
+    10% { 
+        transform: translate(0); 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+    }
+    
+    /* Beech me ek chhota sa random spark */
+    50% { box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    52% { 
+        transform: translate(-1px, 1px);
+        box-shadow: 0 0 15px #0ff; 
+        background-color: #3390ec; 
+    }
+    54% { 
+        transform: translate(0);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+        background-color: #232e3c; 
+    }
+}
+
     </style>
 </head>
 <body>
@@ -100,7 +167,7 @@
         <!-- HOME SCREEN ke andar ye wala hissa update karna hai -->
 <div style="margin-top:20px;">
     <!-- Inline style me relative aur hidden add kiya h taaki badge bahar na nikle -->
-    <div class="class-btn" onclick="doorTransition(['NEET'])" style="position: relative; overflow: hidden;">
+    <div class="class-btn electric-shock-btn" onclick="doorTransition(['NEET'])" style="position: relative; overflow:hidden;">
         
         <!-- Ye raha tumhara angled '2025-26' badge -->
         <div style="position: absolute; top: 15px; right: -30px; background: var(--primary); color: #000; font-size: 0.75rem; font-weight: 900; padding: 4px 35px; transform: rotate(45deg); font-family: 'Orbitron'; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">

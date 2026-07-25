@@ -80,36 +80,39 @@ def toggle_maintenance(m):
 
 # ==========================================
 # 🚀 VIP UI MENUS (WITH REAL COLORS 🔥)
+# =======
+
 # ==========================================
+# 🚀 VIP UI MENUS (CUSTOM COLORED BUTTONS 🔥)
+# ==========================================
+
+# Naya Custom Class: Ye purani library ko bypass karke Telegram ko asli color code bhejega!
+class ColoredButton(InlineKeyboardButton):
+    def __init__(self, text, url=None, callback_data=None, web_app=None, style=None):
+        super().__init__(text=text, url=url, callback_data=callback_data, web_app=web_app)
+        self.style = style
+
+    def to_dict(self):
+        d = super().to_dict()
+        if self.style:
+            d['style'] = self.style
+        return d
+
 def force_join_menu():
     markup = InlineKeyboardMarkup()
-    try:
-        # style="primary" se Blue color aayega
-        markup.row(InlineKeyboardButton("📢 Join Channel 1", url=f"https://t.me/{CHANNEL_1.replace('@', '')}", style="primary"))
-        markup.row(InlineKeyboardButton("📢 Join Channel 2", url=f"https://t.me/{CHANNEL_2.replace('@', '')}", style="primary"))
-        # style="success" se Green color aayega
-        markup.row(InlineKeyboardButton("✅ VERIFY & CONTINUE", callback_data="verify_join", style="success"))
-    except TypeError:
-        # Agar telebot purana hua toh normal button aayega
-        markup.row(InlineKeyboardButton("📢 Join Channel 1", url=f"https://t.me/{CHANNEL_1.replace('@', '')}"))
-        markup.row(InlineKeyboardButton("📢 Join Channel 2", url=f"https://t.me/{CHANNEL_2.replace('@', '')}"))
-        markup.row(InlineKeyboardButton("✅ VERIFY & CONTINUE", callback_data="verify_join"))
+    # "primary" = Blue 🔵, "success" = Green 🟢, "danger" = Red 🔴
+    markup.row(ColoredButton("📢 Join Channel 1", url=f"https://t.me/{CHANNEL_1.replace('@', '')}", style="primary"))
+    markup.row(ColoredButton("📢 Join Channel 2", url=f"https://t.me/{CHANNEL_2.replace('@', '')}", style="primary"))
+    markup.row(ColoredButton("✅ VERIFY & CONTINUE", callback_data="verify_join", style="success"))
     return markup
 
 def home_menu():
     markup = InlineKeyboardMarkup()
-    try:
-        markup.row(InlineKeyboardButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL), style="success"))
-        markup.row(
-            InlineKeyboardButton("🆘 Help", url="https://t.me/errorkidk_bot", style="primary"),
-            InlineKeyboardButton("🔄 Update", url="https://t.me/testbotupdate", style="primary")
-        )
-    except TypeError:
-        markup.row(InlineKeyboardButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL)))
-        markup.row(
-            InlineKeyboardButton("🆘 Help", url="https://t.me/errorkidk_bot"),
-            InlineKeyboardButton("🔄 Update", url="https://t.me/testbotupdate")
-        )
+    markup.row(ColoredButton("▶️ ENTER ALIESN BATCH 🍿", web_app=WebAppInfo(url=WEB_APP_URL), style="success"))
+    markup.row(
+        ColoredButton("🆘 Help", url="https://t.me/errorkidk_bot", style="primary"),
+        ColoredButton("🔄 Update", url="https://t.me/testbotupdate", style="primary")
+    )
     return markup
 
 def show_home(chat_id, uid, first_name):
@@ -126,12 +129,8 @@ def send_disclaimer(chat_id):
         "<i>By clicking 'I AGREE', you acknowledge and accept these terms.</i>"
     )
     markup = InlineKeyboardMarkup()
-    try:
-        # style="danger" se ekdum mast RED color ka button aayega!
-        markup.row(InlineKeyboardButton("I AGREE & CONTINUE", callback_data="agree_disclaimer", style="danger"))
-    except TypeError:
-        markup.row(InlineKeyboardButton("🟥 I AGREE & CONTINUE", callback_data="agree_disclaimer"))
-        
+    # Isko Danger style diya gaya hai taaki mast Red color ka button aaye!
+    markup.row(ColoredButton("I AGREE & CONTINUE", callback_data="agree_disclaimer", style="danger"))
     bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
 
 @bot.message_handler(commands=['start'])
